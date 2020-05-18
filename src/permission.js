@@ -1,51 +1,48 @@
 import router from './router'
 import store from './store'
 
-import { setToken, getCookieToken, getUser, } from '@/util/auth' // 验权
+import { getUserByToken } from './common/api'
+import { Message } from 'element-ui';
+import { getCookieToken, removeToken } from './common/util/auth' // 验权
 
-var isFrist = true;
-// 路由的拦截
-router.beforeEach((to, from, next) => {
-
-  
-
-
-  if (to.path.indexOf("/admin/") == 0) {
-    if (to.path.indexOf("/admin/login") == 0) {
-      next();
-    } else {
-      if (store.getters.admin_token == null) {
-        console.log("没有管理员token");
-        next({ path: '/admin/login' })
+const blackList = [];
+router.beforeEach(async (to, from, next) => {
+  const hasGetUserInfo = store.getters.user;
+  if (!hasGetUserInfo) {
+    const hasToken = getCookieToken();
+    if (hasToken) {
+      console.log("cookie中有token");
+      try {
+        const resp = await getUserByToken({ token: hasToken });
+        if (resp.resCode == 0) {
+          console.log("用户首次登陆 根据token获取用户信息成功");
+          store.commit("SET_USER", resp.resVal);
+          next();
+        } else {
+          console.log("token 过期或者异常");
+          Message.error(resp.resMes);
+          removeToken();
+          next();
+        }
+      } catch (error) {
+        await store.dispatch('resetToken');
+        Message.error(error || '网络异常');
+        next()
       }
-      next();
+    } else {
+      console.log("没有token");
+      if (blackList.indexOf(to.path) == -1) {
+        // 在黑名单中
+        console.log("拦截操作");
+        next();
+      } else {
+        next();
+      }
     }
   } else {
-    // 如果是cookie 中保存了用户名密码 又是第一次刷新 就获取cookie中的用户名 密码 获取token
-    if (isFrist) {
-      console.log("第一次准备获取Token");
-      // 获取Token
-      const user = getUser();
-      if (user != null && user.user_name != null && user.password != null) {
-        // 有用户信息
-        console.log("cookie 中有用户信息");
-        // 向store 中保存Cookie
-        store.commit("SET_USER", user);
-        getToken(user);
-      }
-    }
-    isFrist = false;
+    console.log("用户存在store 中直接放过");
     next();
   }
+
 })
 
-async function getToken(user) {
-  const resp = await Login(user);
-  // 如果成功设置
-  console.log(resp);
-  if (resp.res_code == "0") {
-    console.log("成功获取token");
-    // 向Cookie 中设置Cookie
-    setToken(resp.res_val.token);
-  }
-}

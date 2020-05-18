@@ -15,6 +15,14 @@ export function validateLowerCase(str) {
   return reg.test(str)
 }
 
+/**
+ * @param {string} path
+ * @returns {Boolean}
+ */
+export function isExternal(path) {
+  return /^(https?:|mailto:|tel:)/.test(path)
+}
+
 /* 大写字母*/
 export function validateUpperCase(str) {
   const reg = /^[A-Z]+$/

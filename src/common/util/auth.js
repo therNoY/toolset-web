@@ -3,7 +3,7 @@ import store from '../../store'
 
 const userNameKey = 'AEUserName' // cookie中保存name的Key
 const userPwdKey = 'AEPwd' // cookie 中保存pwd的key
-const TokenKey = 'AEToken' // cookie 中保存token的key
+const TokenKey = 'toolsetToken' // cookie 中保存token的key
 
 export function getCookieToken() {
   return Cookies.get(TokenKey)

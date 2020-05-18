@@ -1,55 +1,70 @@
-import { removeToken } from '../../common/util/auth'
+import { removeToken, getToken, setToken, getCookieToken } from '../../common/util/auth'
+import { login, register, getUserInfo } from '../../common/api'
 const user = {
   state: {
-    admin_token: null,
-    token: '',
-    user: {},
+    token: getCookieToken(),
+    user: null,
   },
 
   mutations: {
     SET_TOKEN: (state, token) => {
       console.log("设置token");
-      state.token = token
+      state.token = token;
     },
     SET_USER: (state, user) => {
-      console.log("设置User");
-      state.user = user
-    },
-    SET_ADMIN_TOKEN:(state, token) => {
-      console.log("设置AdminToken");
-      state.admin_token = token
+      console.log("设置User信息" + user);
+      state.user = user;
     },
     LOGOUT: (state) => {
       console.log("清除state");
       state.user = {};
-      state.token = null
+      state.token = null;
     },
   },
 
   actions: {
-
-    // 登出
-    LogOut({ commit, state }) {
+    login({ commit }, userInfo) {
+      const { username, password } = userInfo;
       return new Promise((resolve, reject) => {
-        logout(state.token).then(() => {
-          commit('SET_TOKEN', '')
-          commit('SET_USER', [])
-          removeToken()
-          resolve()
+        login({ userName: username.trim(), password: password }).then(response => {
+          if (response.resCode  == 0) {
+            console.log("登录成功 保存token");
+            commit('SET_USER', response.resVal.userInfo)
+            setToken(response.resVal.token);
+            resolve(response);
+          } else {
+            reject(response.resMes);
+          }
+          
         }).catch(error => {
-          reject(error)
+          resolve(error);
+          throw error;
         })
       })
     },
+    register({ commit }, registerInfo) {
+      return new Promise((resolve, reject) => {
+        register(registerInfo).then(response => {
+          if (response.resCode == 0) {
+            console.log("登录成功 保存token");
+            commit('SET_USER', response.resVal.userInfo)
+            setToken(response.resVal.token);
+            resolve();
+          } else {
+            reject(response.resMes);
+          }
 
-    // 前端 登出
-    FedLogOut({ commit }) {
-      return new Promise(resolve => {
-        commit('SET_TOKEN', '')
-        removeToken()
-        resolve()
+        }).catch(error => {
+          reject(error);
+        })
       })
-    }
+    },
+    // 登出
+    logout({ commit, state }) {
+      commit('SET_TOKEN', '');
+      commit('SET_USER', []);
+      removeToken();
+    },
   }
 }
 
