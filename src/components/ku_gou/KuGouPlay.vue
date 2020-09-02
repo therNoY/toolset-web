@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { getKuGouMusic } from "@/config/getData";
+import { getKuGouMusic } from "../../common/api";
 export default {
   data() {
     return {
@@ -13,11 +13,12 @@ export default {
     }
   },
   methods: {
-    async getMusicDate(hash) {
+    getMusicDate(hash) {
       let args = {};
       args.hash = hash;
-      let res = await getKuGouMusic(this, args);
-      this.hash = res.data;
+      getKuGouMusic(args).then(resp=>{
+        this.hash = res
+      });
     }
   },
   created() {

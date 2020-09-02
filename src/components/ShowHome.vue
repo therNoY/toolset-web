@@ -59,12 +59,13 @@
 </template>
 
 <script>
-import { RandomMusic } from "../common/api";
+import { getKuGouMusic } from "../common/api";
 import { realFormatSecond } from "../common/util";
 
 export default {
   data() {
     return {
+      hash: null,
       music: null,
       audio: {
         currentTime: 0,
@@ -85,13 +86,10 @@ export default {
 
   methods: {
     getNewMusic() {
-      let asyncRes = RandomMusic();
-      asyncRes.then(data => {
-        if (data.resCode == 0) {
-          console.log(data.resVal);
-          this.music = data.resVal;
-        }
+      getKuGouMusic({hash:this.hash}).then(resp=>{
+        console.log(resp);
       });
+      
     },
     // 进度条toolTip
     formatProcessToolTip(index = 0) {
@@ -156,6 +154,7 @@ export default {
   },
 
   created() {
+    this.hash = this.$route.query.hash;
     this.getNewMusic();
   }
 };

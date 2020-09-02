@@ -5,6 +5,17 @@ const post = "POST";
 const put = "PUT";
 const del = "DELETE";
 
+
+export const getKuGouList = (args) => request('/ku_gou/music/list/search', args, "GET");
+export const getKuGouMusic = (args) => request('/ku_gou/music/get', args, "GET");
+export const addInfoToEs = (args) => request('/ku_gou/addInfoToEs', args, "GET");
+export const addInfosToEs = (args) => request('/ku_gou/addInfosToEs', args, "POST");
+
+export const getSourceList = (args) => request('/source/list', args, "GET");
+export const getRealUrl = (args) => request('/source/realUrl', args, "GET");
+export const getVerification = (args) => request('/resource/verification', args, "GET");
+export const verifyion = (args) => frequest('/resource/url', args);
+
 export const GetTest = (url) => request(url, "", get);
 export const PostTest = (url, args) => request(url, args, post);
 // 随机音乐

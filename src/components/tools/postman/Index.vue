@@ -75,7 +75,7 @@
           </span>
           <div class="sendTitle">
             <el-input
-              style="width: 90%;"
+              style="width: 83%;"
               placeholder="请输入内容"
               v-model="request.label"
               class="input-with-select"
@@ -96,17 +96,17 @@
               </el-select>
               <el-button style="width: 100px;" slot="append" @click="doSendHttp">send</el-button>
             </el-input>
-            <el-button
-              style="width: 8%; float:right"
-              icon="el-icon-folder-opened"
-              @click="saveCurrentEdit"
-            >保存</el-button>
+            <el-button style="float:left;margin-left:1%" @click="saveCurrentEdit">保存</el-button>
+            <el-button style="float:right; " @click="saveCurrentEdit">另存</el-button>
           </div>
         </el-tab-pane>
       </el-tabs>
 
       <!-- 请求信息 -->
-      <div style="font-size:13px; float:left; margin-left:15px; margin-top:5px">
+      <div
+        v-if="editList.length > 0"
+        style="font-size:13px; float:left; margin-left:15px; margin-top:5px"
+      >
         <span>显示：</span>
         <el-checkbox v-model="sendMesShow">请求详情</el-checkbox>
         <el-checkbox v-model="respShow">返回详情</el-checkbox>
@@ -256,7 +256,7 @@
                 <json-viewer
                   v-show="!editBody"
                   :value="getJsonOrString(currentEdit.postManDetail.body)"
-                  :expand-depth="2"
+                  :expand-depth="4"
                   copyable
                   sort
                 ></json-viewer>
@@ -275,7 +275,7 @@
                 <json-viewer
                   v-show="!editBody"
                   :value="getJsonOrString(currentEdit.postManDetail.body)"
-                  :expand-depth="2"
+                  :expand-depth = "4"
                   copyable
                   sort
                 ></json-viewer>
@@ -297,10 +297,10 @@
         <el-main>
           <el-tabs v-model="respDefalutShow">
             <el-tab-pane class="respBody" label="body" name="body">
-              <div v-if="currentEdit.respon">
-                <div v-if="currentEdit.respon.contentType.indexOf('application/json') == 0">
+              <div v-if="currentEdit.respBody">
+                <div v-if="currentEdit.contentType.indexOf('application/json') == 0">
                   <json-viewer
-                    :value="getJsonOrString(currentEdit.respon.resBody)"
+                    :value="getJsonOrString(currentEdit.respBody)"
                     :expand-depth="5"
                     copyable
                     sort
@@ -308,21 +308,21 @@
                 </div>
                 <div
                   style="font-size:12px"
-                  v-else-if="currentEdit.respon.contentType.indexOf('text/html') == 0"
-                  v-html="currentEdit.respon.resBody"
+                  v-else-if="currentEdit.contentType.indexOf('text/html') == 0"
+                  v-html="currentEdit.respBody"
                 />
-                <div v-else v-html="currentEdit.respon.resBody"></div>
+                <div v-else v-html="currentEdit.respBody"></div>
               </div>
             </el-tab-pane>
             <el-tab-pane label="headers" name="headers">
-              <div v-if="currentEdit.respon">
+              <div v-if="currentEdit.respHeaders">
                 <div class="params_des" style="float:left">
                   <div style="width: 3%">&nbsp;</div>
                   <div size="mini" style="width: 30%">KEY</div>
                   <div size="mini" style="width: 30%;margin-left:5%">VALUE</div>
                 </div>
                 <div
-                  v-for="(head,index) in currentEdit.respon.headers"
+                  v-for="(head,index) in currentEdit.respHeaders"
                   :key="index"
                   style="width: 100%;float:left;margin-bottom:2px"
                 >
@@ -332,14 +332,14 @@
               </div>
             </el-tab-pane>
             <el-tab-pane label="cookie" name="cookie">
-              <div v-if="currentEdit.respon">
+              <div v-if="currentEdit.respCookies">
                 <div class="params_des" style="float:left">
                   <div style="width: 3%">&nbsp;</div>
                   <div size="mini" style="width: 30%">KEY</div>
                   <div size="mini" style="width: 30%;margin-left:5%">VALUE</div>
                 </div>
                 <div
-                  v-for="(cookie,index) in currentEdit.respon.cookies"
+                  v-for="(cookie,index) in currentEdit.respCookies"
                   :key="index"
                   style="width: 100%;float:left;margin-bottom:2px"
                 >
@@ -349,14 +349,14 @@
               </div>
             </el-tab-pane>
             <el-tab-pane label="默认请求头" name="addDefaultHeaders">
-              <div v-if="currentEdit.respon">
+              <div v-if="currentEdit.respAddHeaders">
                 <div class="params_des" style="float:left">
                   <div style="width: 3%">&nbsp;</div>
                   <div size="mini" style="width: 30%">KEY</div>
                   <div size="mini" style="width: 30%;margin-left:5%">VALUE</div>
                 </div>
                 <div
-                  v-for="(head,index) in currentEdit.respon.addHeaders"
+                  v-for="(head,index) in currentEdit.respAddHeaders"
                   :key="index"
                   style="width: 100%;float:left;margin-bottom:2px"
                 >
@@ -444,6 +444,7 @@
 
 <script>
 import my_title from "../Title";
+import {getRealLengthOfString} from '../../../common/util/string'
 import {
   getUserPostmanHistory,
   getUserPostmanEdit,
@@ -675,21 +676,14 @@ export default {
       else return "color:#097BED";
     },
     getShortCollectUrl(request) {
-      if (request.status == 2) {
-        if (request.name.length < 15) {
-          return request.name;
-        } else {
-          return request.name.substring(0, 15) + " ...";
-        }
+      console.log(getRealLengthOfString);
+      if (request.status == 2 || request.status == 3) {
+        return getRealLengthOfString(request.name, 15);
       } else {
         if (request.url == null) {
           return "Untitled Request";
         }
-        if (request.url.length < 15) {
-          return request.url;
-        } else {
-          return request.url.substring(0, 15) + " ...";
-        }
+        return getRealLengthOfString(request.url, 15);
       }
     },
     // 点击历史
@@ -882,9 +876,8 @@ export default {
     },
     // 移除一个收藏中的item
     deleteCollectItem(item) {
-      delPostManItemFromCollect({id:item.id}).then(resp=>{
-
-        let id= Math.abs(item.id);
+      delPostManItemFromCollect({ id: item.id }).then(resp => {
+        let id = Math.abs(item.id);
 
         if (resp.resCode == 0) {
           for (let i = 0; i < this.editList.length; i++) {
@@ -897,7 +890,7 @@ export default {
 
           this.getUserCollection();
         }
-      })
+      });
     },
     // 处理点击tag 显示是否选择
     handleItemBodySelect(key, keyPath) {
@@ -1020,6 +1013,7 @@ export default {
           this.currentEdit = resp.resVal;
           this.showRequestName = this.currentEdit.id + "";
           this.newCollectRequestDialog = false;
+          this.getUserCollection();
         }
       });
     },
@@ -1045,17 +1039,27 @@ export default {
     // 准备发送当前的http
     doSendHttp() {
       this.sendHttpIng = true;
-      sendHttp({ id: this.currentEdit.id }).then(resp => {
-        console.log(resp);
-        if (resp.resCode == 0) {
-          this.currentEdit.respon = resp.resVal;
-          this.getUserHistory();
+      sendHttp({ id: this.currentEdit.id })
+        .then(resp => {
+          console.log(resp);
+          if (resp.resCode == 0) {
+            for (let i = 0; i < this.editList.length; i++) {
+              const edit = this.editList[i];
+              if (edit.id == resp.resVal.id) {
+                this.editList[i] = resp.resVal;
+                this.currentEdit = this.editList[i];
+                break;
+              }
+            }
+            this.getUserHistory();
+          } else {
+            this.$message.error(resp.resVal);
+          }
           this.sendHttpIng = false;
-        } else {
+        })
+        .catch(err => {
           this.sendHttpIng = false;
-          this.$message.error(resp.resVal);
-        }
-      });
+        });
     },
 
     // 获取用户的历史纪录
@@ -1120,6 +1124,10 @@ export default {
       getUserPostManCollection().then(resp => {
         if (resp.resCode == 0) {
           this.collects = resp.resVal;
+          if (this.currentEdit && this.currentEdit.collectionsId) {
+            this.expandedKey = [];
+            this.expandedKey.push(this.currentEdit.collectionsId);
+          }
         } else {
           this.$message.error(resp.resMes);
         }
@@ -1304,7 +1312,7 @@ export default {
 }
 .sendMes {
   width: 100%;
-  height: 200px;
+  height: 300px;
   padding-right: 10px;
 }
 .params_show {

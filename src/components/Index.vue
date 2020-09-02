@@ -334,8 +334,9 @@ export default {
               }
               this.loading = false;
             })
-            .catch(() => {
+            .catch(e => {
               this.loading = false;
+              console.error(e);
               this.$message.error("网络异常!!");
             });
         } else {

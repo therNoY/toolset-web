@@ -52,7 +52,7 @@ export default {
       // 参数
       options: {
         target: "http://localhost:8099/upload/chunk", // 目标上传 URL
-        chunkSize: 1024 * 1024 * 5, //分块大小 1M
+        chunkSize: 1024 * 1024 * 2, //分块大小 1M
         fileParameterName: "file", //上传文件时文件的参数名，默认file
         maxChunkRetries: 0, //最大自动失败重试上传次数
         testChunks: true, //是否开启服务器分片校验
@@ -115,26 +115,26 @@ export default {
       // 205表示需要合并
       if (res.code == 205) {
         // 发送merge请求，参数为identifier和filename，这个要注意需要和后台的Chunk类中的参数名对应，否则会接收不到~
-        mergeFileRequest({
-          identifier: file.uniqueIdentifier,
-          filename: file.name,
-          relativePath: file.relativePath,
-          rootFileId: rootFile.id,
-        }).then(response => {
-          setTimeout(() => {
-            console.log("=============单个文件上传成功： 准备消失=========");
-            console.log(file);
-            console.log(this.uploadFileList);
+        // mergeFileRequest({
+        //   identifier: file.uniqueIdentifier,
+        //   filename: file.name,
+        //   relativePath: file.relativePath,
+        //   rootFileId: rootFile.id,
+        // }).then(response => {
+        //   setTimeout(() => {
+        //     console.log("=============单个文件上传成功： 准备消失=========");
+        //     console.log(file);
+        //     console.log(this.uploadFileList);
 
-            for (let i = 0; i < this.uploadFileList.length; i++) {
-              const f = this.uploadFileList[i];
-              if (file.name == f.name) {
-                this.uploadFileList[i].show = false;
-                return;
-              }
-            }
-          }, 1000);
-        });
+        //     for (let i = 0; i < this.uploadFileList.length; i++) {
+        //       const f = this.uploadFileList[i];
+        //       if (file.name == f.name) {
+        //         this.uploadFileList[i].show = false;
+        //         return;
+        //       }
+        //     }
+        //   }, 1000);
+        // });
       }
     },
     // 文件进度的回调

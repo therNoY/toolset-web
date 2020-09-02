@@ -27,7 +27,7 @@
     </div>
 
     <el-dialog title="输入验证码" v-if="sourceList.length > 0" :visible.sync="imgVisible" width="60%">
-      <img :src="verificaImg" alt>
+      <img :src="verificaImg" alt />
       <el-input v-model="verificaCode"></el-input>
       <el-button type="primary" @click="VerifyionCode">确定</el-button>
     </el-dialog>
@@ -40,7 +40,7 @@ import {
   getRealUrl,
   getVerification,
   verifyion
-} from "../config/getData";
+} from "../common/api";
 export default {
   data() {
     return {
@@ -54,73 +54,71 @@ export default {
     };
   },
   methods: {
-    async getBDResouce() {
+    getBDResouce() {
       let theUrl = this.baiduUrl.replace("&", "??");
       let args2 = { url: theUrl };
-      let res2 = await getVerification(this, args2);
-      if (res2.data.realDownloadURL != null && res2.data.response20 == null) {
-        alert(res2.data.realDownloadURL);
-        console.log(res2.data.realDownloadURL);
-      } else if (
-        res2.data.realDownloadURL == null &&
-        res2.data.response20 != null
-      ) {
-        this.validator = res2.data;
-        this.verificaImg = res2.data.response20.img;
-        this.imgVisible = true;
-      } else {
-        console.warn("<······未控制的流程······>");
-      }
+      lgetVerification(args2).then(res2 => {
+        if (res2.realDownloadURL != null && res2.response20 == null) {
+          alert(res2.realDownloadURL);
+          console.log(res2.realDownloadURL);
+        } else if (res2.realDownloadURL == null && res2.response20 != null) {
+          this.validator = res2;
+          this.verificaImg = res2.response20.img;
+          this.imgVisible = true;
+        } else {
+          console.warn("<······未控制的流程······>");
+        }
+      });
     },
-
-    async serch(num) {
+    serch(num) {
       let serchName = this.serchName;
       if (num != undefined) {
         serchName = serchName + "_" + num;
       }
-      let args = { name: serchName };
-      let res = await getSourceList(this, args);
-      this.sourceList = res.data;
+      getSourceList({ name: serchName }).then(res => {
+        this.sourceList = res;
+      });
     },
 
-    async goDownLoad(url, key) {
+    goDownLoad(url, key) {
       // TODO 解析 key
       if (key != null) {
         alert("没有该文件");
         return;
       }
       let args = { url: url, key: key };
-      let res = await getRealUrl(this, args);
-      if (res.data.key != null) {
-        alert("没有该文件");
-        return;
-      }
-      let theUrl = res.data.url.replace("&", "??");
-      let args2 = { url: theUrl };
-      console.log(args2);
-      let res2 = await getVerification(this, args2);
-      if (res2.data.realDownloadURL != null && res2.data.response20 == null) {
-        alert(res2.data.realDownloadURL);
-        console.log(res2.data.realDownloadURL);
-      } else if (
-        res2.data.realDownloadURL == null &&
-        res2.data.response20 != null
-      ) {
-        this.validator = res2.data;
-        this.verificaImg = res2.data.response20.img;
-        this.imgVisible = true;
-      } else {
-        console.warn("<······未控制的流程······>");
-      }
+      getRealUrl(args).then(res => {
+        if (res.key != null) {
+          alert("没有该文件");
+          return;
+        }
+        let theUrl = res.url.replace("&", "??");
+        let args2 = { url: theUrl };
+        console.log(args2);
+
+        getVerification(args2).then(res2 => {
+          if (res2.realDownloadURL != null && res2.response20 == null) {
+            alert(res2.realDownloadURL);
+            console.log(res2.realDownloadURL);
+          } else if (res2.realDownloadURL == null && res2.response20 != null) {
+            this.validator = res2;
+            this.verificaImg = res2.response20.img;
+            this.imgVisible = true;
+          } else {
+            console.warn("<······未控制的流程······>");
+          }
+        });
+      });
     },
 
-    async VerifyionCode() {
+    VerifyionCode() {
       this.imgVisible = false;
       this.validator.postData.vcode_input = this.verificaCode;
       this.validator.postData.vcode_str = this.validator.response20.vcode;
-      let res = await verifyion(this, this.validator);
-      alert(res.data);
-      console.log(res.data);
+      verifyion(this.validator).then(resp => {
+        alert(resp);
+        console.log(resp);
+      });
     },
 
     handleCurrentChange(val) {

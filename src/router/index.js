@@ -6,6 +6,7 @@ import Zookeeper from '@/components/client/zookeeper/Index'
 import PanSouSou from '@/components/PanSouSou'
 import KuGou from '@/components/ku_gou/KuGou'
 import KuGouPlay from '@/components/ku_gou/KuGouPlay'
+import ShowHome from '../components/ShowHome'
 
 Vue.use(Router)
 
@@ -84,8 +85,8 @@ export default new Router({
       },
     }, {
       path: '/ku_gou/play',
-      name: 'KuGouPlay',
-      component: KuGouPlay
+      name: 'ShowHome',
+      component: ShowHome
     }
   ]
 })
