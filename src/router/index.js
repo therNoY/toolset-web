@@ -62,11 +62,11 @@ export default new Router({
       }]
     },
     {
-      path: '/tools/postman',
-      name: 'PostMan',
-      component: () => import('../components/tools/postman/Index'),
+      path: '/tools/httpReq',
+      name: 'HttpReq',
+      component: () => import('../components/tools/httpReq/Index'),
       meta: {
-        title: 'postman'
+        title: 'httpReq'
       }
     },
     {

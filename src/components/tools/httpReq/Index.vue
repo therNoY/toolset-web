@@ -113,7 +113,7 @@
       </div>
 
       <el-container v-show="sendMesShow" class="sendMes" v-if="editList.length > 0">
-        <el-main>
+        <el-main v-if="currentEdit.httpReqDetail">
           <el-tabs v-model="getCurrentItemShow" @tab-click="handleItemBodySelect">
             <!-- 请求参数？后面 -->
             <el-tab-pane label="params" name="params">
@@ -124,7 +124,7 @@
                   <div size="mini" style="width: 30%">VALUE</div>
                   <div size="mini" style="width: 37%">DESCRIPTION</div>
                 </div>
-                <div class="params_show" v-for="p in currentEdit.postManDetail.params" :key="p.id">
+                <div class="params_show" v-for="p in currentEdit.httpReqDetail.params" :key="p.id">
                   <el-checkbox
                     v-model="p.s"
                     style="width: 2%; margin-right:1%; float:left"
@@ -160,7 +160,7 @@
             <!-- 验证部分 -->
             <el-tab-pane class="item_auth_show" label="authorization" name="authorization">
               <el-select
-                v-model="currentEdit.postManDetail.auth.k"
+                v-model="currentEdit.httpReqDetail.auth.k"
                 size="mini"
                 @change="updateCurrentItem"
               >
@@ -174,18 +174,18 @@
 
               <div
                 class="auth_body"
-                v-if="currentEdit.postManDetail.auth.k == 'No Auth'"
+                v-if="currentEdit.httpReqDetail.auth.k == 'No Auth'"
               >This request does not use any authorization.</div>
               <div
                 class="auth_body"
-                v-else-if="currentEdit.postManDetail.auth.k == 'Basic Auth'"
+                v-else-if="currentEdit.httpReqDetail.auth.k == 'Basic Auth'"
               >In development ...</div>
-              <div class="auth_body" v-else-if="currentEdit.postManDetail.auth.k == 'Bearer Token'">
+              <div class="auth_body" v-else-if="currentEdit.httpReqDetail.auth.k == 'Bearer Token'">
                 <div style="float: left; margin-right: 5%;margin-top: 5px;">Token:</div>
                 <div style="float: left; width:70%">
                   <el-input
                     size="mini"
-                    v-model="currentEdit.postManDetail.auth.v"
+                    v-model="currentEdit.httpReqDetail.auth.v"
                     @input="updateCurrentItem"
                   ></el-input>
                 </div>
@@ -202,7 +202,7 @@
                 </div>
                 <div
                   class="headers_show"
-                  v-for="(header,index) in currentEdit.postManDetail.headers"
+                  v-for="(header,index) in currentEdit.httpReqDetail.headers"
                   :key="index"
                 >
                   <el-checkbox
@@ -255,7 +255,7 @@
                 ></el-input>
                 <json-viewer
                   v-show="!editBody"
-                  :value="getJsonOrString(currentEdit.postManDetail.body)"
+                  :value="getJsonOrString(currentEdit.httpReqDetail.body)"
                   :expand-depth="4"
                   copyable
                   sort
@@ -274,8 +274,8 @@
                 ></el-input>
                 <json-viewer
                   v-show="!editBody"
-                  :value="getJsonOrString(currentEdit.postManDetail.body)"
-                  :expand-depth = "4"
+                  :value="getJsonOrString(currentEdit.httpReqDetail.body)"
+                  :expand-depth="4"
                   copyable
                   sort
                 ></json-viewer>
@@ -444,25 +444,25 @@
 
 <script>
 import my_title from "../Title";
-import {getRealLengthOfString} from '../../../common/util/string'
+import { getRealLengthOfString } from "../../../common/util/string";
 import {
-  getUserPostmanHistory,
-  getUserPostmanEdit,
-  savePostmanItem,
-  updatePostmanItem,
-  updatePostmanItemUrl,
+  getUserHttpReqHistory,
+  getUserHttpReqEdit,
+  saveHttpReqItem,
+  updateHttpReqItem,
+  updateHttpReqItemUrl,
   getCommonHeaderKey,
-  addNewPostManItem,
-  delPostManItem,
-  delPostManHis,
+  addNewHttpReqItem,
+  delHttpReqItem,
+  delHttpReqHis,
   addNewCollections,
-  getUserPostManCollection,
-  delPostManCollect,
-  savePostmanItemChange,
-  updatePostmanItemStatus,
-  getUserNoItemPostManCollection,
+  getUserHttpReqCollection,
+  delHttpReqCollect,
+  saveHttpReqItemChange,
+  updateHttpReqItemStatus,
+  getUserNoItemHttpReqCollection,
   saveItemToCollect,
-  delPostManItemFromCollect,
+  delHttpReqItemFromCollect,
   sendHttp
 } from "@/common/api";
 export default {
@@ -533,7 +533,7 @@ export default {
     },
     getEditJsonBody: {
       get() {
-        return this.currentEdit.postManDetail.body;
+        return this.currentEdit.httpReqDetail.body;
       },
       set(val) {
         try {
@@ -542,7 +542,7 @@ export default {
         } catch (err) {
           this.errJson = true;
         }
-        this.currentEdit.postManDetail.body = val;
+        this.currentEdit.httpReqDetail.body = val;
       }
     },
     // 防止URL 过长导致显示过长
@@ -655,7 +655,7 @@ export default {
     },
     // url改变
     urlChange() {
-      updatePostmanItemUrl(this.currentEdit).then(resp => {
+      updateHttpReqItemUrl(this.currentEdit).then(resp => {
         if (resp.resCode == 0) {
           for (let i = 0; i < this.editList.length; i++) {
             const edit = this.editList[i];
@@ -703,7 +703,7 @@ export default {
       // 生成postItem
       this.currentEdit = request;
       this.currentEdit.historyId = request.id;
-      savePostmanItem(this.currentEdit).then(resp => {
+      saveHttpReqItem(this.currentEdit).then(resp => {
         if (resp.resCode == 0) {
           this.currentEdit = JSON.parse(JSON.stringify(request));
           this.currentEdit.id = resp.resVal;
@@ -713,7 +713,7 @@ export default {
       });
     },
     changeItemName() {
-      updatePostmanItem(this.currentEdit).then(resp => {
+      updateHttpReqItem(this.currentEdit).then(resp => {
         if (resp.resCode == 0) {
           for (let i = 0; i < this.editList.length; i++) {
             const item = this.editList[i];
@@ -743,7 +743,7 @@ export default {
       }
       // 生成postItem
       console.log("修改edit的状态");
-      updatePostmanItemStatus({ id: item.id, status: 2 }).then(resp => {
+      updateHttpReqItemStatus({ id: item.id, status: 2 }).then(resp => {
         if (resp.resCode == 0) {
           this.editList.push(resp.resVal);
           this.currentEdit = this.editList[this.editList.length - 1];
@@ -757,7 +757,7 @@ export default {
     },
     // 删除历史纪录
     deletetory(h, c, hi, i) {
-      delPostManHis({ id: c.id }).then(resp => {
+      delHttpReqHis({ id: c.id }).then(resp => {
         if (resp.resCode == 0) {
           h.children.splice(i, 1);
           if (h.children.length == 0) {
@@ -774,7 +774,7 @@ export default {
       console.log(targetName);
       if (action === "add") {
         // 添加一个空标签
-        addNewPostManItem().then(resp => {
+        addNewHttpReqItem().then(resp => {
           if (resp.resCode == 0) {
             this.editList.push(resp.resVal);
             this.currentEdit = resp.resVal;
@@ -805,7 +805,7 @@ export default {
             cancelButtonText: "不保存"
           })
             .then(() => {
-              savePostmanItemChange({ id: targetName, remove: true }).then(
+              saveHttpReqItemChange({ id: targetName, remove: true }).then(
                 resp => {
                   if (resp.resCode == 0) {
                     this.editList.splice(editIndex, 1);
@@ -817,7 +817,7 @@ export default {
             .catch(action => {
               if (action == "cancel") {
                 // 直接关闭 不提示
-                delPostManItem({ id: targetName }).then(resp => {
+                delHttpReqItem({ id: targetName }).then(resp => {
                   if (resp.resCode == 0) {
                     this.editList.splice(editIndex, 1);
                   }
@@ -829,7 +829,7 @@ export default {
           this.editList[editIndex].lastVersionId == -1
         ) {
           // 直接关闭 不提示
-          delPostManItem({ id: targetName }).then(resp => {
+          delHttpReqItem({ id: targetName }).then(resp => {
             if (resp.resCode == 0) {
               this.editList.splice(editIndex, 1);
             }
@@ -860,7 +860,7 @@ export default {
     },
     // 移除一个正在编辑的item
     removeEditItem(id) {
-      delPostManItem({ id: id }).then(resp => {
+      delHttpReqItem({ id: id }).then(resp => {
         if (resp.resCode == 0) {
           let index = 0;
           for (let i = 0; i < this.editList.length; i++) {
@@ -876,7 +876,7 @@ export default {
     },
     // 移除一个收藏中的item
     deleteCollectItem(item) {
-      delPostManItemFromCollect({ id: item.id }).then(resp => {
+      delHttpReqItemFromCollect({ id: item.id }).then(resp => {
         let id = Math.abs(item.id);
 
         if (resp.resCode == 0) {
@@ -902,18 +902,19 @@ export default {
     },
     // 点击新加一列请求头
     addItemPara() {
+      console.error(this.currentEdit);
       let currentShow = this.currentEdit.show
         ? this.currentEdit.show
         : "params";
       if (currentShow == "params") {
         let addItem = { k: "", v: "", s: true, d: "" };
-        this.currentEdit.postManDetail.params.push(addItem);
+        this.currentEdit.httpReqDetail.params.push(addItem);
       } else if (currentShow == "headers") {
         let addItem = { k: "", v: "", s: true, d: "" };
-        this.currentEdit.postManDetail.headers.push(addItem);
+        this.currentEdit.httpReqDetail.headers.push(addItem);
       }
       console.log(this.currentEdit);
-      updatePostmanItem(this.currentEdit).then(resp => {
+      updateHttpReqItem(this.currentEdit).then(resp => {
         if (resp.resCode == 0) {
           for (let i = 0; i < this.editList.length; i++) {
             const edit = this.editList[i];
@@ -929,7 +930,7 @@ export default {
     // 更新当前的编辑
     saveCurrentEdit() {
       if (this.currentEdit.status == 2) {
-        savePostmanItemChange({ id: this.currentEdit.id, remove: false }).then(
+        saveHttpReqItemChange({ id: this.currentEdit.id, remove: false }).then(
           resp => {
             if (resp.resCode == 0) {
               for (let i = 0; i < this.editList.length; i++) {
@@ -950,7 +951,7 @@ export default {
     },
     // 更新item
     updateCurrentItem() {
-      updatePostmanItem(this.currentEdit).then(resp => {
+      updateHttpReqItem(this.currentEdit).then(resp => {
         if (resp.resCode == 0) {
           for (let i = 0; i < this.editList.length; i++) {
             const edit = this.editList[i];
@@ -964,7 +965,7 @@ export default {
       });
     },
     updateCurrentItemAndGiveSuggest(index) {
-      let k = this.currentEdit.postManDetail.headers[index].k;
+      let k = this.currentEdit.httpReqDetail.headers[index].k;
       if (k != null) {
         let suggestV = null;
         let suggestD = null;
@@ -975,8 +976,8 @@ export default {
           }
         });
         if (suggestV != null) {
-          this.currentEdit.postManDetail.headers[index].v = suggestV;
-          this.currentEdit.postManDetail.headers[index].d = suggestD;
+          this.currentEdit.httpReqDetail.headers[index].v = suggestV;
+          this.currentEdit.httpReqDetail.headers[index].d = suggestD;
         }
       }
       this.updateCurrentItem();
@@ -1004,7 +1005,7 @@ export default {
     },
 
     sendAddCollectRequest() {
-      addNewPostManItem({
+      addNewHttpReqItem({
         collectId: this.newCollectRequestCollectId,
         name: this.newCollectRequestName
       }).then(resp => {
@@ -1064,7 +1065,7 @@ export default {
 
     // 获取用户的历史纪录
     getUserHistory() {
-      getUserPostmanHistory().then(resp => {
+      getUserHttpReqHistory().then(resp => {
         if (resp.resCode == 0) {
           this.history = resp.resVal;
         } else {
@@ -1087,7 +1088,7 @@ export default {
     // 将当前编辑的结果保存到收藏中
     saveCurrentEditToCollect() {
       // 首先获取没有item的文件夹
-      getUserNoItemPostManCollection().then(resp => {
+      getUserNoItemHttpReqCollection().then(resp => {
         if (resp.resCode == 0) {
           this.saveCurrentEditToCollectDialog = true;
           this.noItemCollects = resp.resVal;
@@ -1121,7 +1122,7 @@ export default {
 
     // 获取用户请求信息
     getUserCollection() {
-      getUserPostManCollection().then(resp => {
+      getUserHttpReqCollection().then(resp => {
         if (resp.resCode == 0) {
           this.collects = resp.resVal;
           if (this.currentEdit && this.currentEdit.collectionsId) {
@@ -1151,7 +1152,7 @@ export default {
 
     // 删除用户收藏
     deleteUserCollect(collection) {
-      delPostManCollect({ id: collection.id }).then(resp => {
+      delHttpReqCollect({ id: collection.id }).then(resp => {
         this.getUserCollection();
         if (collection.historyId) {
           this.expandedKey = [];
@@ -1195,7 +1196,7 @@ export default {
       // 初始化用户收藏
       this.getUserCollection();
 
-      getUserPostmanEdit().then(resp => {
+      getUserHttpReqEdit().then(resp => {
         if (resp.resCode == 0) {
           this.editList = resp.resVal;
           if (this.editList != null && this.editList.length > 0) {

@@ -1,8 +1,8 @@
 <template>
   <div class="body">
-    <div class="block" @click="router('postman')">
-      <img src="../assets/image/postman-logo.jpg" />
-      <div>postman</div>
+    <div class="block" @click="router('httpReq')">
+      <img src="../assets/image/httpReq-logo.jpg" />
+      <div>httpReq</div>
     </div>
     <div class="block">
       <img src="../assets/image/httpService-logo.jpg" />

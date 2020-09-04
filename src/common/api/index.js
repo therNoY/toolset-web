@@ -39,58 +39,58 @@ export const openSource = (args) =>  request("/api/connect/list", args, get);
 export const testConn = (args) =>  request("/api/connect/test", args, post);
 
 // 添加到编辑项目里面
-export const savePostmanItem = (args) =>  request("/api/postman/item", args, put);
+export const saveHttpReqItem = (args) =>  request("/api/httpReq/item", args, put);
 
 // 更新item
-export const updatePostmanItem = (args) =>  request("/api/postman/item", args, post);
+export const updateHttpReqItem = (args) =>  request("/api/httpReq/item", args, post);
 
 // 更新url 获取更新后的结果 
-export const updatePostmanItemUrl = (args) =>  request("/api/postman/item/url", args, post);
+export const updateHttpReqItemUrl = (args) =>  request("/api/httpReq/item/url", args, post);
 
 // 修改status 状态
-export const updatePostmanItemStatus = (args) =>  request("/api/postman/item/status", args, post);
+export const updateHttpReqItemStatus = (args) =>  request("/api/httpReq/item/status", args, post);
 
 // 更新url 获取更新后的结果
-export const savePostmanItemChange = (args) =>  request("/api/postman/item/save", args, post);
+export const saveHttpReqItemChange = (args) =>  request("/api/httpReq/item/save", args, post);
 
-// 获取用户postman 的历史
-export const getUserPostmanHistory = (args) =>  request("/api/postman/history/list", args, get);
+// 获取用户httpReq 的历史
+export const getUserHttpReqHistory = (args) =>  request("/api/httpReq/history/list", args, get);
 
-// 获取用户postman 的历史
-export const getUserPostManCollection = () =>  request("/api/postman/collection/list", "", get);
+// 获取用户httpReq 的历史
+export const getUserHttpReqCollection = () =>  request("/api/httpReq/collection/list", "", get);
 
-// 获取用户postman 的历史
-export const getUserNoItemPostManCollection = () =>  request("/api/postman/noItemCollection/list", "", get);
+// 获取用户httpReq 的历史
+export const getUserNoItemHttpReqCollection = () =>  request("/api/httpReq/noItemCollection/list", "", get);
 
-// 获取用户postman 的历史
-export const saveItemToCollect = (args) =>  request("/api/postman/collection/saveItemToCollect", args, post);
+// 获取用户httpReq 的历史
+export const saveItemToCollect = (args) =>  request("/api/httpReq/collection/saveItemToCollect", args, post);
 
-// 获取用户postman 的编辑列表
-export const getUserPostmanEdit = (args) =>  request("/api/postman/edit/list", args, get);
+// 获取用户httpReq 的编辑列表
+export const getUserHttpReqEdit = (args) =>  request("/api/httpReq/edit/list", args, get);
 
 // 获取一个通用的请求头
-export const getCommonHeaderKey = () =>  request("/postman/commonHeader", "", get);
+export const getCommonHeaderKey = () =>  request("/httpReq/commonHeader", "", get);
 
 // 添加一个空的item
-export const addNewPostManItem = (args) =>  request("/api/postman/item/empty", args, put);
+export const addNewHttpReqItem = (args) =>  request("/api/httpReq/item/empty", args, put);
 
 // 添加一个新的收藏
-export const addNewCollections = (args) =>  request("/api/postman/collection", args, put);
+export const addNewCollections = (args) =>  request("/api/httpReq/collection", args, put);
 
-// 删除一个正在编辑的postManItem
-export const delPostManItem = (args) =>  request("/api/postman/item", args, del);
+// 删除一个正在编辑的HttpReqItem
+export const delHttpReqItem = (args) =>  request("/api/httpReq/item", args, del);
 
 
-// 删除一个正在编辑的postManItem
-export const delPostManItemFromCollect = (args) =>  request("/api/postman/collect/item", args, del);
+// 删除一个正在编辑的HttpReqItem
+export const delHttpReqItemFromCollect = (args) =>  request("/api/httpReq/collect/item", args, del);
 
-// 删除一个正在编辑的postManItem
-export const delPostManHis = (args) =>  request("/api/postman/history", args, del);
+// 删除一个正在编辑的HttpReqItem
+export const delHttpReqHis = (args) =>  request("/api/httpReq/history", args, del);
 
 // 删除用户收藏
-export const delPostManCollect = (args) =>  request("/api/postman/collect", args, del);
+export const delHttpReqCollect = (args) =>  request("/api/httpReq/collect", args, del);
 
-export const sendHttp = (args) =>  request("/api/postman/sendHttp", args, post);
+export const sendHttp = (args) =>  request("/api/httpReq/sendHttp", args, post);
 
 export const mergeFileRequest = (args) => request("/upload/merge", args, post);
 
